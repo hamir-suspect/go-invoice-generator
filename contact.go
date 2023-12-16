@@ -67,11 +67,11 @@ func (c *Contact) appendContactTODoc(
 	doc.pdf.SetX(x)
 
 	// Name rect
-	doc.pdf.Rect(x, doc.pdf.GetY(), 80, 8, "F")
+	doc.pdf.Rect(x, doc.pdf.GetY(), 70, 8, "DF")
 
 	// Set name
 	doc.pdf.SetFont(doc.Options.BoldFont, "B", 10)
-	doc.pdf.Cell(40, 8, doc.encodeString(c.Name))
+	doc.pdf.Cell(80, 8, doc.encodeString(c.Name))
 	doc.pdf.SetFont(doc.Options.Font, "", 10)
 
 	if c.Address != nil {
@@ -86,7 +86,7 @@ func (c *Contact) appendContactTODoc(
 			addrRectHeight = addrRectHeight - 5
 		}
 
-		doc.pdf.Rect(x, doc.pdf.GetY()+9, 70, addrRectHeight, "F")
+		doc.pdf.Rect(x, doc.pdf.GetY()+8, 70, addrRectHeight+1, "DF")
 
 		// Set address
 		doc.pdf.SetFont(doc.Options.Font, "", 10)
@@ -97,6 +97,7 @@ func (c *Contact) appendContactTODoc(
 	// Addtionnal info
 	if c.AddtionnalInfo != nil {
 		doc.pdf.SetXY(x, doc.pdf.GetY())
+		doc.pdf.Rect(x, doc.pdf.GetY(), 70, 5+1, "DF")
 		doc.pdf.SetFontSize(SmallTextFontSize)
 		doc.pdf.SetXY(x, doc.pdf.GetY()+2)
 
@@ -114,11 +115,14 @@ func (c *Contact) appendContactTODoc(
 
 // appendCompanyContactToDoc append the company contact to the document
 func (c *Contact) appendCompanyContactToDoc(doc *Document) float64 {
-	x, y, _, _ := doc.pdf.GetMargins()
-	return c.appendContactTODoc(x, y, true, "L", doc)
+	x, _, _, _ := doc.pdf.GetMargins()
+
+	return c.appendContactTODoc(x, 50, true, "L", doc)
 }
 
 // appendCustomerContactToDoc append the customer contact to the document
 func (c *Contact) appendCustomerContactToDoc(doc *Document) float64 {
-	return c.appendContactTODoc(130, BaseMarginTop+25, true, "R", doc)
+	x, _, _, _ := doc.pdf.GetMargins()
+
+	return c.appendContactTODoc(x, BaseMarginTop+25, true, "R", doc)
 }

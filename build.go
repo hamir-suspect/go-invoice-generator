@@ -52,7 +52,8 @@ func (doc *Document) Build() (*fpdf.Fpdf, error) {
 	doc.appendMetas()
 
 	// Append company contact to doc
-	companyBottom := doc.Company.appendCompanyContactToDoc(doc)
+	//companyBottom := doc.Company.appendCompanyContactToDoc(doc)
+	companyBottom := 0.0
 
 	// Append customer contact to doc
 	customerBottom := doc.Customer.appendCustomerContactToDoc(doc)
@@ -96,19 +97,28 @@ func (doc *Document) Build() (*fpdf.Fpdf, error) {
 }
 
 // appendTitle to document
-func (doc *Document) appendTitle() {
-	title := doc.typeAsString()
+func (doc *Document) appendTitle() int {
+	titles := doc.Company.AddtionnalInfo
 
-	// Set x y
-	doc.pdf.SetXY(120, BaseMarginTop)
+	h := len(titles)
+
+	w, _ := doc.pdf.GetPageSize()
+	left, _, right, _ := doc.pdf.GetMargins()
 
 	// Draw rect
 	doc.pdf.SetFillColor(doc.Options.DarkBgColor[0], doc.Options.DarkBgColor[1], doc.Options.DarkBgColor[2])
-	doc.pdf.Rect(120, BaseMarginTop, 80, 10, "F")
+	// Set x y
+	doc.pdf.SetXY(left, BaseMarginTop)
+
+	doc.pdf.Rect(left, BaseMarginTop, w-(left+right), 20, "F")
 
 	// Draw text
-	doc.pdf.SetFont(doc.Options.Font, "", 14)
-	doc.pdf.CellFormat(80, 10, doc.encodeString(title), "0", 0, "C", false, 0, "")
+	doc.pdf.SetFont(doc.Options.Font, "", 9)
+	for _, title := range titles {
+		doc.pdf.MultiCell(w-(left+right), 5, doc.encodeString(title), "1", "C", false)
+	}
+
+	return h * 10
 }
 
 // appendMetas to document
@@ -116,14 +126,14 @@ func (doc *Document) appendMetas() {
 	// Append ref
 	refString := fmt.Sprintf("%s: %s", doc.Options.TextRefTitle, doc.Ref)
 
-	doc.pdf.SetXY(120, BaseMarginTop+11)
+	doc.pdf.SetXY(120, BaseMarginTop+30)
 	doc.pdf.SetFont(doc.Options.Font, "", 8)
 	doc.pdf.CellFormat(80, 4, doc.encodeString(refString), "0", 0, "R", false, 0, "")
 
 	// Append version
 	if len(doc.Version) > 0 {
 		versionString := fmt.Sprintf("%s: %s", doc.Options.TextVersionTitle, doc.Version)
-		doc.pdf.SetXY(120, BaseMarginTop+15)
+		doc.pdf.SetXY(120, doc.pdf.GetY()+5)
 		doc.pdf.SetFont(doc.Options.Font, "", 8)
 		doc.pdf.CellFormat(80, 4, doc.encodeString(versionString), "0", 0, "R", false, 0, "")
 	}
@@ -134,7 +144,7 @@ func (doc *Document) appendMetas() {
 		date = doc.Date
 	}
 	dateString := fmt.Sprintf("%s: %s", doc.Options.TextDateTitle, date)
-	doc.pdf.SetXY(120, BaseMarginTop+19)
+	doc.pdf.SetXY(120, doc.pdf.GetY()+5)
 	doc.pdf.SetFont(doc.Options.Font, "", 8)
 	doc.pdf.CellFormat(80, 4, doc.encodeString(dateString), "0", 0, "R", false, 0, "")
 }
